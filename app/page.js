@@ -1,98 +1,118 @@
 "use client";
-import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { Mic, Plus, Menu, Volume2, Share2 } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Mic, Send, Menu, cpu, Shield, Zap } from 'lucide-react';
 
 export default function AhmohuSystem() {
-  const [isRotating, setIsRotating] = useState(true);
+  const [messages, setMessages] = useState([
+    { role: 'ai', content: 'نظام AHMOHU جاهز للعمل. كيف يمكنني مساعدتك اليوم؟' }
+  ]);
+  const [input, setInput] = useState('');
+  const [isTyping, setIsTyping] = useState(false);
+  const chatEndRef = useRef(null);
+
+  // التمرير التلقائي للأسفل
+  useEffect(() => {
+    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!input.trim()) return;
+
+    const userMsg = { role: 'user', content: input };
+    setMessages(prev => [...prev, userMsg]);
+    setInput('');
+    setIsTyping(true);
+
+    // محاكاة رد الذكاء الاصطناعي
+    setTimeout(() => {
+      const aiMsg = { role: 'ai', content: `تم تحليل طلبك [${input}] بنجاح. أنا هنا لتنفيذ أوامرك.` };
+      setMessages(prev => [...prev, aiMsg]);
+      setIsTyping(false);
+    }, 1000);
+  };
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-white font-sans flex flex-col p-6 relative overflow-hidden">
+    <div className="min-h-screen bg-black text-white font-sans flex flex-col items-center relative overflow-hidden px-4">
       
-      {/* الشريط العلوي - Header */}
-      <div className="flex justify-between items-center z-10">
-        <div className="flex items-center gap-4">
-          <Menu className="text-zinc-400" size={24} />
-          <h2 className="text-sm font-bold tracking-widest text-zinc-300 uppercase">
-            AHMOHU SYSTEM v2.5 INSTANT
-          </h2>
-        </div>
-        <div className="flex items-center gap-4">
-          <Volume2 size={20} className="text-zinc-400" />
-          <Share2 size={20} className="text-zinc-400" />
-        </div>
-      </div>
+      {/* الخلفية المتحركة (الشبكة) */}
+      <div className="bg-grid opacity-20 pointer-events-none"></div>
 
-      {/* المحتوى الرئيسي - الـ Vinyl Record والاسم */}
-      <div className="flex-1 flex flex-col items-center justify-center z-10 space-y-8">
-        
+      {/* الشريط العلوي - Header */}
+      <header className="w-full max-w-2xl py-6 flex justify-between items-center z-10 border-b border-white/5">
+        <Menu className="text-zinc-500" size={24} />
+        <h2 className="text-[10px] font-black tracking-[0.4em] text-cyan-400 uppercase italic">
+          AHMOHU CORE v2.5
+        </h2>
+        <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse shadow-[0_0_10px_red]"></div>
+      </header>
+
+      {/* الجزء العلوي - الأسطوانة والاسم (توسيط كامل) */}
+      <div className="flex flex-col items-center justify-center py-10 z-10">
         <div className="relative flex items-center justify-center">
-          {/* نص الاسم العريض خلف الأسطوانة */}
-          <h1 className="text-7xl md:text-9xl font-black tracking-tighter text-white opacity-90 italic select-none">
+          <h1 className="text-[60px] md:text-[100px] font-black italic opacity-20 ahmohu-title select-none">
             AHMOHU
           </h1>
-
-          {/* الأسطوانة الدوارة - Vinyl Record */}
-          <motion.div 
-            className="absolute"
-            animate={{ rotate: isRotating ? 360 : 0 }}
-            transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
-          >
-            <div className="w-32 h-32 md:w-48 md:h-48 rounded-full bg-black border-4 border-zinc-800 shadow-[0_0_50px_rgba(6,182,212,0.4)] flex items-center justify-center overflow-hidden">
-              {/* تفاصيل الأسطوانة */}
-              <div className="w-full h-full rounded-full border-[10px] border-zinc-900 flex items-center justify-center relative">
-                <div className="w-12 h-12 bg-gradient-to-tr from-cyan-400 via-purple-500 to-red-500 rounded-full flex items-center justify-center">
-                  <div className="w-2 h-2 bg-black rounded-full"></div>
-                </div>
-                {/* خطوط لمعان الأسطوانة */}
-                <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/5 to-transparent opacity-30"></div>
+          <div className="absolute vinyl-container scale-75 md:scale-100">
+            <div className="vinyl-record">
+              <div className="vinyl-center">
+                <div className="vinyl-dot"></div>
               </div>
             </div>
-          </motion.div>
+          </div>
         </div>
-
-        {/* حالة التشغيل */}
-        <div className="text-center space-y-2">
-          <p className="text-cyan-400 font-bold tracking-widest text-xs md:text-sm uppercase">
-            Now Playing: Tactical Deployment
-          </p>
-          <p className="text-zinc-500 text-[10px] md:text-xs font-medium tracking-[0.3em] uppercase">
-            AHMOHU SYSTEM - AI CORE ONLINE
-          </p>
-        </div>
-
-        {/* محلل الصوت - Audio Visualizer Bars */}
-        <div className="flex items-end gap-1 h-12">
-          {[...Array(15)].map((_, i) => (
-            <motion.div
-              key={i}
-              className="w-1.5 md:w-2 bg-cyan-400 shadow-[0_0_10px_rgba(34,211,238,0.8)]"
-              animate={{ height: [10, 40, 20, 45, 15][i % 5] }}
-              transition={{ duration: 0.5, repeat: Infinity, repeatType: "reverse", delay: i * 0.05 }}
-            />
+        
+        {/* محلل الصوت */}
+        <div className="visualizer-container mt-6">
+          {[...Array(10)].map((_, i) => (
+            <div key={i} className="bar" style={{ animationDelay: `${i * 0.1}s` }}></div>
           ))}
         </div>
       </div>
 
-      {/* شريط الإدخال السفلي - Input Bar */}
-      <div className="mt-auto z-10">
-        <div className="bg-zinc-900/80 backdrop-blur-xl border border-white/5 rounded-full p-2 flex items-center shadow-2xl">
-          <div className="p-3 bg-cyan-500/10 rounded-full text-cyan-400">
-            <Mic size={22} />
+      {/* منطقة الشات - Chat Area */}
+      <main className="w-full max-w-2xl flex-1 overflow-y-auto z-10 space-y-4 py-4 no-scrollbar">
+        <AnimatePresence>
+          {messages.map((msg, i) => (
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
+            >
+              <div className={`max-w-[85%] p-4 rounded-2xl text-sm leading-relaxed ${
+                msg.role === 'user' 
+                ? 'bg-cyan-600 text-black font-bold rounded-tr-none shadow-[0_5px_15px_rgba(6,182,212,0.3)]' 
+                : 'bg-zinc-900/80 backdrop-blur-md border border-white/10 rounded-tl-none text-cyan-50'
+              }`}>
+                {msg.content}
+              </div>
+            </motion.div>
+          ))}
+        </AnimatePresence>
+        {isTyping && <div className="text-[10px] text-cyan-500 animate-pulse uppercase tracking-widest">Processing...</div>}
+        <div ref={chatEndRef} />
+      </main>
+
+      {/* شريط الإدخال السفلي - Input Bar (توسيط) */}
+      <footer className="w-full max-w-2xl pb-8 pt-4 z-20 bg-gradient-to-t from-black via-black to-transparent">
+        <form onSubmit={handleSubmit} className="input-glass rounded-full p-2 flex items-center relative overflow-hidden">
+          <div className="p-3 text-cyan-400">
+            <Mic size={20} />
           </div>
           <input 
             type="text" 
-            placeholder="Ask away. Usage Scenario..."
-            className="flex-1 bg-transparent border-none focus:ring-0 text-zinc-300 px-4 py-2 text-sm placeholder:text-zinc-600 outline-none"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            placeholder="تحدث مع نظام AHMOHU..."
+            className="flex-1 bg-transparent border-none focus:ring-0 text-white px-2 py-2 text-sm outline-none"
           />
-          <div className="p-2 text-zinc-500">
-            <Plus size={24} />
-          </div>
-        </div>
-      </div>
-
-      {/* خلفية بصرية - تأثير إضاءة خافتة */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-cyan-500/5 blur-[120px] rounded-full z-0"></div>
+          <button type="submit" className="p-3 bg-cyan-500 rounded-full text-black hover:bg-cyan-400 transition-all">
+            <Send size={18} />
+          </button>
+        </form>
+      </header>
     </div>
   );
 }
