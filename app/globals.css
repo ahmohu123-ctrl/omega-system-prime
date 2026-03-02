@@ -1,10 +1,27 @@
-Enter@tailwind base;
+@tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+:root {
+  --background: #000000;
+  --foreground: #00ffff;
+}
 
 body {
   background: black;
   color: #00ffff;
   margin: 0;
-  font-family: monospace;
+  font-family: 'Courier New', Courier, monospace;
+  overflow-x: hidden;
+}
+
+/* تحسين شكل شريط التمرير على الهاتف */
+::-webkit-scrollbar {
+  width: 3px;
+}
+::-webkit-scrollbar-track {
+  background: #000;
+}
+::-webkit-scrollbar-thumb {
+  background: #0891b2;
 }
